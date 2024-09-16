@@ -1,0 +1,29 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+mycli
+
+# Test binary, test coverage, and other temporary files
+*.test
+*.out
+
+# Go vendor directory (if using vendoring)
+vendor/
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Go module files (uncomment if you don't want to include them)
+# go.sum
+# go.mod
+
+# IDE specific files (uncomment based on the editor/IDE used)
+# .idea/
+# *.iml
+# .vscode/

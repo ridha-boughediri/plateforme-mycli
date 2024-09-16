@@ -126,14 +126,3 @@ go test ./...
 
 Ces tests s'assureront que chaque fonctionnalité du CLI interagit correctement avec le serveur S3.
 
-## Bonus
-
-Si vous souhaitez rendre votre CLI compatible avec des services S3 réels comme **Amazon S3** ou **MinIO**, vous pouvez configurer les informations d'authentification (clés d'accès, secret, etc.) dans un fichier de configuration ou via des variables d'environnement.
-
-## Contributeurs
-
-Mentionnez ici les contributeurs du projet.
-
-## Licence
-
-Indiquez ici la licence sous laquelle est distribué le projet.

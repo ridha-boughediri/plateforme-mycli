@@ -1,17 +1,20 @@
+// config/config.go
 package config
 
-import (
-	"os"
-)
+import "os"
 
-func GetS3URL() string {
-	return os.Getenv("S3_URL")
+type Config struct {
+    AwsAccessKeyID     string
+    AwsSecretAccessKey string
+    AwsRegion          string
+    S3Endpoint         string
 }
 
-func GetAccessKey() string {
-	return os.Getenv("S3_ACCESS_KEY")
-}
-
-func GetSecretKey() string {
-	return os.Getenv("S3_SECRET_KEY")
+func New() *Config {
+    return &Config{
+        AwsAccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"),
+        AwsSecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+        AwsRegion:          os.Getenv("AWS_REGION"),
+        S3Endpoint:         os.Getenv("S3_ENDPOINT"),
+    }
 }

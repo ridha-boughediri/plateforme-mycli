@@ -12,5 +12,6 @@ func main() {
 	rootCmd.AddCommand(commands.SyncCmd)
 	rootCmd.AddCommand(commands.ShowCmd)
 	rootCmd.AddCommand(commands.UnsyncCmd)
+	rootCmd.AddCommand(commands.ObjectAddCmd)
 	rootCmd.Execute()
 }

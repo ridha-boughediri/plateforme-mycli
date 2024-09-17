@@ -1,22 +1,16 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/ridha-boughediri/plateforme-mycli/commands"
 	"github.com/spf13/cobra"
 )
 
 func main() {
-	versionCmd := &cobra.Command{
-		Use:   "version",
-		Short: "Shows the version of Buckgo",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Buckgo 0.1")
-		},
-	}
+	rootCmd := &cobra.Command{Use: "bu"}
 
-	rootCmd := &cobra.Command{Use: "Buckgo"}
-
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(commands.VersionCmd)
+	rootCmd.AddCommand(commands.SyncCmd)
+	rootCmd.AddCommand(commands.ShowCmd)
+	rootCmd.AddCommand(commands.UnsyncCmd)
 	rootCmd.Execute()
 }

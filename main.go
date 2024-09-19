@@ -1,21 +1,25 @@
 package main
 
 import (
-    "log"
-    "os"
-    "github.com/joho/godotenv"
-    "plateforme-mycli/cmd" // Ensure this is the correct path
+	"log"
+
+	"plateforme-mycli/commands"
+	"plateforme-mycli/config"
+	"plateforme-mycli/storage"
 )
 
 func main() {
-    // Load environment variables from .env file
-    if err := godotenv.Load(); err != nil {
-        log.Print("No .env file found, using environment variables")
-    }
+	// Charger la configuration
+	config.LoadEnv()
 
-    rootCmd := cmd.NewRootCommand()
-    if err := rootCmd.Execute(); err != nil {
-        log.Fatalf("Error executing command: %v", err)
-        os.Exit(1)
-    }
+	// Initialiser le client MinIO
+	err := storage.InitMinioClient()
+	if err != nil {
+		log.Fatalf("Erreur lors de l'initialisation du client MinIO : %v", err)
+	}
+
+	// Exécuter les commandes CLI
+	if err := commands.Execute(); err != nil {
+		log.Fatal(err)
+	}
 }

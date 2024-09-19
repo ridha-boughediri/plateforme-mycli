@@ -1,20 +1,15 @@
-// config/config.go
 package config
 
-import "os"
+import (
+	"log"
 
-type Config struct {
-    AwsAccessKeyID     string
-    AwsSecretAccessKey string
-    AwsRegion          string
-    S3Endpoint         string
-}
+	"github.com/joho/godotenv"
+)
 
-func New() *Config {
-    return &Config{
-        AwsAccessKeyID:     os.Getenv("AWS_ACCESS_KEY_ID"),
-        AwsSecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
-        AwsRegion:          os.Getenv("AWS_REGION"),
-        S3Endpoint:         os.Getenv("S3_ENDPOINT"),
-    }
+// LoadEnv charge les variables d'environnement depuis le fichier .env
+func LoadEnv() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Erreur de chargement du fichier .env : %v", err)
+	}
 }

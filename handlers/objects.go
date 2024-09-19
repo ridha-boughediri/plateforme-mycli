@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,15 +10,25 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ridha-boughediri/plateforme-mycli/dtos"
 	"github.com/ridha-boughediri/plateforme-mycli/libs"
 )
 
-func AddObject(url, localPath string) error {
-
+func urlParts(url string) ([]string, error) {
 	parts := strings.SplitN(url, "/", 2)
 	if len(parts) != 2 {
-		return fmt.Errorf("alias and bucket should be in the correct format alias/bucket")
+		return nil, fmt.Errorf("alias and bucket should be in the correct format alias/bucket")
 	}
+
+	return parts, nil
+}
+func AddObject(url, localPath string) error {
+
+	parts, err := urlParts(url)
+	if err != nil {
+		return fmt.Errorf("error parsing URL: %v", err)
+	}
+
 	alias := parts[0]
 	bucket := parts[1]
 
@@ -67,49 +78,24 @@ func AddObject(url, localPath string) error {
 	return nil
 }
 
-func DownloadObject(alias, url, localPath string) error {
+func DownloadObject(url, localPath string) error {
+
+	parts, err := urlParts(url)
+	if err != nil {
+		return fmt.Errorf("error parsing URL: %v", err)
+	}
+
+	alias := parts[0]
+	bucket := parts[1]
 
 	remote, err := libs.FindAlias(alias)
 	if err != nil {
 		return fmt.Errorf("error with provided alias: %v", err)
 	}
 
-	fullURL := remote + url
+	fullURL := fmt.Sprintf("%s/%s", remote, bucket)
 
-	resp, err := http.Get(fullURL)
-	if err != nil {
-		return fmt.Errorf("error performing HTTP request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to download object, server responded with status: %d", resp.StatusCode)
-	}
-
-	file, err := os.Create(localPath)
-	if err != nil {
-		return fmt.Errorf("error creating local file: %v", err)
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, resp.Body)
-	if err != nil {
-		return fmt.Errorf("error writing file content: %v", err)
-	}
-
-	return nil
-}
-
-func DeleteObject(alias, url string) error {
-
-	remote, err := libs.FindAlias(alias)
-	if err != nil {
-		return fmt.Errorf("error with provided alias: %v", err)
-	}
-
-	fullURL := remote + url
-
-	req, err := http.NewRequest("DELETE", fullURL, nil)
+	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
 		return fmt.Errorf("error creating HTTP request: %v", err)
 	}
@@ -122,7 +108,86 @@ func DeleteObject(alias, url string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to delete object, server responded with status: %d", resp.StatusCode)
+		return fmt.Errorf("failed to download object server responded with %s \nStatus: %d", resp.Status, resp.StatusCode)
+	}
+
+	fileInfo, err := os.Stat(localPath)
+	if err == nil && fileInfo.IsDir() {
+		fileName := filepath.Base(bucket)
+		localPath = filepath.Join(localPath, fileName)
+	}
+
+	file, err := os.Create(localPath)
+	if err != nil {
+		return fmt.Errorf("error creating file at path %s: %v", localPath, err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return fmt.Errorf("error writing file: %v", err)
+	}
+
+	return nil
+}
+
+func DeleteObject(url string) error {
+
+	parts, err := urlParts(url)
+	if err != nil {
+		return fmt.Errorf("error parsing URL: %v", err)
+	}
+
+	alias := parts[0]
+	bucket := parts[1]
+
+	parts2, err := urlParts(bucket)
+	if err != nil {
+		return fmt.Errorf("error parsing URL: %v", err)
+	}
+
+	bucketName := parts2[0]
+	objectName := parts2[1]
+
+	remote, err := libs.FindAlias(alias)
+	if err != nil {
+		return fmt.Errorf("error with provided alias: %v", err)
+	}
+
+	fullURL := fmt.Sprintf("%s/%s/", remote, bucketName)
+
+	println(fullURL)
+
+	deleteReq := dtos.Delete{
+		Quiet: false,
+		Object: struct {
+			Key string `xml:"Key"`
+		}{
+			Key: objectName,
+		},
+	}
+
+	xmlPayload, err := xml.Marshal(deleteReq)
+	if err != nil {
+		return fmt.Errorf("error marshalling XML: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", fullURL, bytes.NewBuffer(xmlPayload))
+	if err != nil {
+		return fmt.Errorf("error creating HTTP request: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/xml")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error performing HTTP request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to delete object server responded with %s \nStatus: %d", resp.Status, resp.StatusCode)
 	}
 
 	return nil

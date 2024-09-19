@@ -30,14 +30,13 @@ var ObjectAddCmd = &cobra.Command{
 }
 
 var ObjectDownloadCmd = &cobra.Command{
-	Use:   "od [alias] [bucketName/objectName] [localPath]",
+	Use:   "od [alias/bucketName/objectName] [localPath]",
 	Short: "Download an object from a bucket",
 	Run: func(cmd *cobra.Command, args []string) {
-		alias := args[0]
-		objectName := args[1]
-		localPath := args[2]
+		url := args[0]
+		localPath := args[1]
 
-		if err := handlers.DownloadObject(alias, objectName, localPath); err != nil {
+		if err := handlers.DownloadObject(url, localPath); err != nil {
 			fmt.Printf("Error downloading object: %v\n", err)
 			return
 		}
@@ -45,21 +44,20 @@ var ObjectDownloadCmd = &cobra.Command{
 		fmt.Println("Object downloaded successfully!")
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 3 {
-			return fmt.Errorf("od requires 3 arguments: [alias] [bucketName/objectName] [localPath]\n\nExample: bu od myalias mybucket/myobject /path/to/local/file")
+		if len(args) != 2 {
+			return fmt.Errorf("od requires 2 arguments: [alias/bucketName/objectName] [localPath]\n\nExample: bu od myalias/mybucket/myobject /path/to/local/file")
 		}
 		return nil
 	},
 }
 
 var ObjectDeleteCmd = &cobra.Command{
-	Use:   "or [alias] [bucketName/objectName]",
+	Use:   "or [alias/bucketName/objectName]",
 	Short: "Delete an object from a bucket",
 	Run: func(cmd *cobra.Command, args []string) {
-		alias := args[0]
-		objectName := args[1]
+		url := args[0]
 
-		if err := handlers.DeleteObject(alias, objectName); err != nil {
+		if err := handlers.DeleteObject(url); err != nil {
 			fmt.Printf("Error deleting object: %v\n", err)
 			return
 		}
@@ -67,8 +65,8 @@ var ObjectDeleteCmd = &cobra.Command{
 		fmt.Println("Object deleted successfully!")
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 2 {
-			return fmt.Errorf("or requires 2 arguments: [alias] [bucketName/objectName]\n\nExample: bu or myalias mybucket/myobject")
+		if len(args) != 1 {
+			return fmt.Errorf("or requires 1 arguments: [alias/bucketName/objectName] \n\nExample: bu or myalias/mybucket/myobject")
 		}
 		return nil
 	},

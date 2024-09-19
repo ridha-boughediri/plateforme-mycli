@@ -26,9 +26,5 @@ Thumbs.db
 # IDE specific files (uncomment based on the editor/IDE used)
 # .idea/
 # *.iml
-<<<<<<< HEAD
 # .vscode/
 .env
-=======
-# .vscode/
->>>>>>> 1d93379 (Initialisation du projet sur la branche init-projet-ridha)

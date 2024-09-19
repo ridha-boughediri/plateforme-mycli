@@ -1,4 +1,4 @@
-module plateforme-mycli
+module github.com/ridha-boughediri/plateforme-mycli
 
 go 1.23.0
 

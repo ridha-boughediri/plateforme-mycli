@@ -1,11 +1,12 @@
-package cmd
+package commands
 
 import (
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"plateforme-mycli/utils"
+
+	"github.com/ridha-boughediri/plateforme-mycli/utils"
 
 	"github.com/spf13/cobra"
 )

@@ -5,25 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/ridha-boughediri/plateforme-mycli/configs"
+	"github.com/ridha-boughediri/plateforme-mycli/libs"
 )
-
-const aliasFileName = "alias.conf"
-
-func getAliasFilePath() (string, error) {
-	exePath, err := os.Executable()
-	if err != nil {
-		return "", fmt.Errorf("could not get executable path: %v", err)
-	}
-
-	exeDir := filepath.Dir(exePath)
-	aliasFilePath := filepath.Join(exeDir, aliasFileName)
-
-	return aliasFilePath, nil
-}
 
 func checkRemote(remote string) error {
 	client := &http.Client{
@@ -49,7 +35,7 @@ func SaveAlias(aliasConfig configs.AliasConfig) error {
 		return fmt.Errorf("unable to connect to server: %v", err)
 	}
 
-	aliasFile, err := getAliasFilePath()
+	aliasFile, err := libs.GetAliasFilePath()
 	if err != nil {
 		return err
 	}
@@ -83,7 +69,7 @@ func SaveAlias(aliasConfig configs.AliasConfig) error {
 }
 
 func ShowAliases() ([]configs.AliasConfig, error) {
-	aliasFile, err := getAliasFilePath()
+	aliasFile, err := libs.GetAliasFilePath()
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +90,7 @@ func ShowAliases() ([]configs.AliasConfig, error) {
 }
 
 func DeleteAlias(alias string) error {
-	aliasFile, err := getAliasFilePath()
+	aliasFile, err := libs.GetAliasFilePath()
 	if err != nil {
 		return err
 	}

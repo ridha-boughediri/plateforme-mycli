@@ -1,25 +1,42 @@
-# Fichiers de configuration locaux
-.env
-
-# Go binary files
+# Fichiers binaires compilés
 *.exe
-*.test
+*.dll
+*.so
+*.dylib
+
+# Dossiers de compilation
+/bin/
+/obj/
+
+# Fichiers générés lors de la compilation Go
 *.out
 
-# Go build artifacts
-bin/
-build/
-dist/
-*.a
-*.so
-*.dSYM
+# Les modules Go et fichiers de dépendances
+/vendor/
+/Gopkg.lock
+/Gopkg.toml
+/go.sum
+/go.mod
 
-# IDE files
-*.idea/
-*.vscode/
-*.swp
+# Cache de compilation Go
+# En général, pas nécessaire de suivre ces fichiers
+*.test
+*.prof
 
-# Autres fichiers générés
+# Dossiers spécifiques à l'éditeur/IDE
+/.idea/
+/.vscode/
+/*.iml
+
+# Fichiers d'environnement sensibles
+.env
+*.env
+
+# Autres fichiers temporaires ou logs
 *.log
 *.tmp
-*.cache
+*.swp
+
+# Cache spécifique à Go Modules
+/pkg/mod/
+/go-build/

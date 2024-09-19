@@ -1,25 +1,22 @@
 package main
 
 import (
-	"log"
-
+	"fmt"
+	"os"
 	"plateforme-mycli/commands"
-	"plateforme-mycli/config"
-	"plateforme-mycli/storage"
+
+	"github.com/spf13/cobra"
 )
 
 func main() {
-	// Charger la configuration
-	config.LoadEnv()
+	var rootCmd = &cobra.Command{Use: "mycli"}
 
-	// Initialiser le client MinIO
-	err := storage.InitMinioClient()
-	if err != nil {
-		log.Fatalf("Erreur lors de l'initialisation du client MinIO : %v", err)
-	}
+	// Ajoutez les commandes pour les buckets et les objets
+	rootCmd.AddCommand(commands.BucketCmd)
+	rootCmd.AddCommand(commands.ObjectCmd)
 
-	// Exécuter les commandes CLI
-	if err := commands.Execute(); err != nil {
-		log.Fatal(err)
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

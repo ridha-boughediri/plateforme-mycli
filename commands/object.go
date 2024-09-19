@@ -1,96 +1,87 @@
 package commands
 
 import (
-	"context"
 	"fmt"
-	"log"
-	"path/filepath"
-
+	"io/ioutil"
 	"plateforme-mycli/storage"
 
-	"github.com/minio/minio-go/v7"
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	rootCmd.AddCommand(objectCmd)
-}
-
-var objectCmd = &cobra.Command{
+// ObjectCmd est la commande principale pour les opérations sur les objets
+var ObjectCmd = &cobra.Command{
 	Use:   "object",
-	Short: "Gérer les objets",
+	Short: "Gérer les objets S3",
+	Long:  "Commande pour uploader, télécharger et supprimer des objets dans un bucket S3",
 }
 
-var uploadObjectCmd = &cobra.Command{
+// UploadObjectCmd pour uploader un objet
+var UploadObjectCmd = &cobra.Command{
 	Use:   "upload [bucket-name] [file-path]",
-	Short: "Uploader un objet",
+	Short: "Uploader un objet dans un bucket",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		bucketName := args[0]
 		filePath := args[1]
-		fileName := filepath.Base(filePath)
 
-		ctx := context.Background()
-		_, err := storage.MinioClient.FPutObject(ctx, bucketName, fileName, filePath, minio.PutObjectOptions{})
+		// Lire le fichier
+		content, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Fatalf("Erreur lors de l'upload de l'objet : %v", err)
+			fmt.Println("Erreur lors de la lecture du fichier :", err)
+			return
 		}
-		fmt.Printf("Fichier '%s' uploadé dans le bucket '%s'.\n", fileName, bucketName)
+
+		// Uploader l'objet
+		err = storage.UploadObject(bucketName, filePath, content)
+		if err != nil {
+			fmt.Println("Erreur lors de l'upload de l'objet :", err)
+			return
+		}
 	},
 }
 
-var deleteObjectCmd = &cobra.Command{
-	Use:   "delete [bucket-name] [object-name]",
-	Short: "Supprimer un objet",
+// DownloadObjectCmd pour télécharger un objet
+var DownloadObjectCmd = &cobra.Command{
+	Use:   "download [bucket-name] [object-name]",
+	Short: "Télécharger un objet d'un bucket",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		bucketName := args[0]
 		objectName := args[1]
 
-		ctx := context.Background()
-		err := storage.MinioClient.RemoveObject(ctx, bucketName, objectName, minio.RemoveObjectOptions{})
+		// Télécharger l'objet
+		content, err := storage.DownloadObject(bucketName, objectName)
 		if err != nil {
-			log.Fatalf("Erreur lors de la suppression de l'objet : %v", err)
+			fmt.Println("Erreur lors du téléchargement de l'objet :", err)
+			return
 		}
-		fmt.Printf("Objet '%s' supprimé du bucket '%s'.\n", objectName, bucketName)
+
+		// Afficher le contenu téléchargé
+		fmt.Println("Contenu de l'objet :", string(content))
 	},
 }
 
-// Nouvelle commande pour lister les objets d'un bucket
-var listObjectsCmd = &cobra.Command{
-	Use:   "list [bucket-name]",
-	Short: "Lister les objets d'un bucket",
-	Args:  cobra.ExactArgs(1),
+// DeleteObjectCmd pour supprimer un objet
+var DeleteObjectCmd = &cobra.Command{
+	Use:   "delete [bucket-name] [object-name]",
+	Short: "Supprimer un objet d'un bucket",
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		bucketName := args[0]
-		ctx := context.Background()
+		objectName := args[1]
 
-		// Vérifier si le bucket existe
-		exists, err := storage.MinioClient.BucketExists(ctx, bucketName)
+		// Supprimer l'objet
+		err := storage.DeleteObject(bucketName, objectName)
 		if err != nil {
-			log.Fatalf("Erreur lors de la vérification du bucket : %v", err)
-		}
-		if !exists {
-			log.Fatalf("Le bucket '%s' n'existe pas.", bucketName)
-		}
-
-		// Créer un canal pour recevoir les objets
-		objectCh := storage.MinioClient.ListObjects(ctx, bucketName, minio.ListObjectsOptions{
-			Recursive: true,
-		})
-
-		fmt.Printf("Liste des objets dans le bucket '%s':\n", bucketName)
-		for object := range objectCh {
-			if object.Err != nil {
-				log.Fatalf("Erreur lors de la liste des objets : %v", object.Err)
-			}
-			fmt.Println(object.Key)
+			fmt.Println("Erreur lors de la suppression de l'objet :", err)
+			return
 		}
 	},
 }
 
 func init() {
-	objectCmd.AddCommand(uploadObjectCmd)
-	objectCmd.AddCommand(deleteObjectCmd)
-	objectCmd.AddCommand(listObjectsCmd) // Ajouter la commande listObjectsCmd
+	// Ajouter les sous-commandes au commandement principal "object"
+	ObjectCmd.AddCommand(UploadObjectCmd)
+	ObjectCmd.AddCommand(DownloadObjectCmd)
+	ObjectCmd.AddCommand(DeleteObjectCmd)
 }

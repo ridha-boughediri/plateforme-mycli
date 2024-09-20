@@ -8,23 +8,14 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/ridha-boughediri/plateforme-mycli/dtos"
 	"github.com/ridha-boughediri/plateforme-mycli/libs"
 )
 
-func urlParts(url string) ([]string, error) {
-	parts := strings.SplitN(url, "/", 2)
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("alias and bucket should be in the correct format alias/bucket")
-	}
-
-	return parts, nil
-}
 func AddObject(url, localPath string) error {
 
-	parts, err := urlParts(url)
+	parts, err := libs.UrlParts(url)
 	if err != nil {
 		return fmt.Errorf("error parsing URL: %v", err)
 	}
@@ -80,7 +71,7 @@ func AddObject(url, localPath string) error {
 
 func DownloadObject(url, localPath string) error {
 
-	parts, err := urlParts(url)
+	parts, err := libs.UrlParts(url)
 	if err != nil {
 		return fmt.Errorf("error parsing URL: %v", err)
 	}
@@ -133,7 +124,7 @@ func DownloadObject(url, localPath string) error {
 
 func DeleteObject(url string) error {
 
-	parts, err := urlParts(url)
+	parts, err := libs.UrlParts(url)
 	if err != nil {
 		return fmt.Errorf("error parsing URL: %v", err)
 	}
@@ -141,7 +132,7 @@ func DeleteObject(url string) error {
 	alias := parts[0]
 	bucket := parts[1]
 
-	parts2, err := urlParts(bucket)
+	parts2, err := libs.UrlParts(bucket)
 	if err != nil {
 		return fmt.Errorf("error parsing URL: %v", err)
 	}

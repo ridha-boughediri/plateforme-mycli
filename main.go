@@ -15,5 +15,9 @@ func main() {
 	rootCmd.AddCommand(commands.ObjectAddCmd)
 	rootCmd.AddCommand(commands.ObjectDownloadCmd)
 	rootCmd.AddCommand(commands.ObjectDeleteCmd)
+	rootCmd.AddCommand(commands.BucketAddCmd)
+	rootCmd.AddCommand(commands.BucketListCmd)
+	rootCmd.AddCommand(commands.BucketDeleteCmd)
+
 	rootCmd.Execute()
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ridha-boughediri/plateforme-mycli/configs"
 )
@@ -50,4 +51,13 @@ func FindAlias(alias string) (string, error) {
 	}
 
 	return "", fmt.Errorf("alias not found")
+}
+
+func UrlParts(url string) ([]string, error) {
+	parts := strings.SplitN(url, "/", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("alias and bucket should be in the correct format alias/bucket")
+	}
+
+	return parts, nil
 }
